@@ -6,21 +6,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class TodoViewModel: ViewModel() {
-    private val _todoTitle = MutableStateFlow("Loading...")
-    val todoTitle: StateFlow<String> = _todoTitle
+class TodoViewModel : ViewModel() {
+    private val _todos = MutableStateFlow<List<Todo>>(emptyList())
+    val todos: StateFlow<List<Todo>> = _todos
 
     init {
-        fetchTodo()
+        fetchTodos()
     }
 
-    private fun fetchTodo() {
+    private fun fetchTodos() {
         viewModelScope.launch {
             try {
-                val todo = RetrofitClient.api.getTodo()
-                _todoTitle.value = todo.title
+                val result = RetrofitClient.api.getTodos()
+                _todos.value = result
             } catch (e: Exception) {
-                _todoTitle.value = "Error: ${e.message}"
+                // Handle error: you could emit a placeholder item with error info, or handle in UI
+                _todos.value = listOf(
+                    Todo(id = -1, title = "Error: ${e.message}", completed = false)
+                )
             }
         }
     }

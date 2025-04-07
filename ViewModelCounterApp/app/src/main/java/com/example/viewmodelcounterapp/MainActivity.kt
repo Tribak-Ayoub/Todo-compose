@@ -216,15 +216,80 @@ package com.example.viewmodelcounterapp
 
 // tuto 5
 
+//import android.os.Bundle
+//import androidx.activity.ComponentActivity
+//import androidx.activity.compose.setContent
+//import androidx.compose.foundation.layout.*
+//import androidx.compose.foundation.lazy.LazyColumn
+//import androidx.compose.foundation.lazy.items
+//import androidx.compose.material3.*
+//import androidx.compose.runtime.*
+//import androidx.compose.ui.Alignment
+//import androidx.compose.ui.Modifier
+//import androidx.compose.ui.unit.dp
+//import androidx.lifecycle.viewmodel.compose.viewModel
+//
+//class MainActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContent {
+//            TodoScreen()
+//        }
+//    }
+//}
+//
+//@Composable
+//fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
+//    val todos by viewModel.todos.collectAsState()
+//
+//    Surface(modifier = Modifier.fillMaxSize()) {
+//        LazyColumn(
+//            contentPadding = PaddingValues(16.dp),
+//            verticalArrangement = Arrangement.spacedBy(12.dp)
+//        ) {
+//            items(todos) { todo ->
+//                Card(
+//                    modifier = Modifier.fillMaxWidth(),
+//                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+//                ) {
+//                    Row(
+//                        modifier = Modifier
+//                            .padding(16.dp)
+//                            .fillMaxWidth(),
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Checkbox(
+//                            checked = todo.completed,
+//                            onCheckedChange = null // No action on check for now
+//                        )
+//                        Spacer(modifier = Modifier.width(8.dp))
+//                        Text(text = todo.title)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
+
+// todoApp
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -241,29 +306,37 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
     val todos by viewModel.todos.collectAsState()
+    var newTitle by remember { mutableStateOf("") }
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(todos) { todo ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Checkbox(
-                            checked = todo.completed,
-                            onCheckedChange = null // No action on check for now
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = todo.title)
+    Column(modifier = Modifier.padding(16.dp)) {
+        // Input field for adding a new task
+        Row(modifier = Modifier.fillMaxWidth()) {
+            TextField(
+                value = newTitle,
+                onValueChange = { newTitle = it },
+                modifier = Modifier.weight(1f),
+                label = { Text("New Task") }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(onClick = {
+                if (newTitle.isNotBlank()) {
+                    viewModel.addTask(Todo(title = newTitle, completed = false))
+                    newTitle = ""
+                }
+            }) {
+                Text("Add")
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display the list of tasks
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(todos.size) { index ->
+                val todo = todos[index]
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Text(todo.title, modifier = Modifier.weight(1f))
+                    IconButton(onClick = { viewModel.deleteTask(todo.id) }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }
                 }
             }

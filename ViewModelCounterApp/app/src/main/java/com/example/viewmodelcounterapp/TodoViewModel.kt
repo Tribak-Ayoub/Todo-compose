@@ -27,4 +27,28 @@ class TodoViewModel : ViewModel() {
             }
         }
     }
+
+    fun addTask(todo: Todo) {
+        viewModelScope.launch {
+            try {
+                val newTask = RetrofitClient.api.createTask(todo)
+                _todos.value = _todos.value + newTask
+            } catch (e: Exception) {
+                // handle error
+            }
+        }
+    }
+
+    fun deleteTask(id: Int) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.api.deleteTask(id)
+                if (response.isSuccessful) {
+                    _todos.value = _todos.value.filter { it.id != id }
+                }
+            } catch (e: Exception) {
+                // handle error
+            }
+        }
+    }
 }

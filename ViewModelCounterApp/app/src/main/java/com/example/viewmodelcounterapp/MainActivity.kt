@@ -279,20 +279,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.viewmodelcounterapp.Todo
+import com.example.viewmodelcounterapp.TodoViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -327,14 +322,49 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
                 Text("Add")
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Display the list of tasks
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(todos.size) { index ->
                 val todo = todos[index]
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Text(todo.title, modifier = Modifier.weight(1f))
+                var editedTitle by remember(todo.id) { mutableStateOf(todo.title) }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(modifier = Modifier.weight(1f)) {
+                        Checkbox(
+                            checked = todo.completed,
+                            onCheckedChange = {
+                                val updatedTodo = todo.copy(completed = it)
+                                viewModel.updateTask(updatedTodo)
+                            }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        TextField(
+                            value = editedTitle,
+                            onValueChange = {
+                                editedTitle = it
+                            },
+                            singleLine = true,
+                            modifier = Modifier.weight(1f),
+                            label = { Text("Edit Task") }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(
+                            onClick = {
+                                val updatedTodo = todo.copy(title = editedTitle)
+                                viewModel.updateTask(updatedTodo)
+                            }
+                        ) {
+                            Text("Save")
+                        }
+                    }
                     IconButton(onClick = { viewModel.deleteTask(todo.id) }) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }

@@ -39,6 +39,23 @@ class TodoViewModel : ViewModel() {
         }
     }
 
+    fun updateTask(todo: Todo) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.api.updateTask(todo.id, todo)
+                if (response.isSuccessful) {
+                    _todos.value = _todos.value.map {
+                        if (it.id == todo.id) todo else it
+                    }
+                } else {
+                    // handle API error (e.g., show error message)
+                }
+            } catch (e: Exception) {
+                // handle network or serialization error
+            }
+        }
+    }
+
     fun deleteTask(id: Int) {
         viewModelScope.launch {
             try {
